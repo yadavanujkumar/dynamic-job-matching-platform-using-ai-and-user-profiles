@@ -7,10 +7,16 @@ import os
 Base = declarative_base()
 
 # Database configuration
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://user:password@localhost:5432/dynamic_job_matching")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./dynamic_job_matching.db")
 
-# Create the database engine
-engine = create_engine(DATABASE_URL, echo=True)
+# Create the database engine (with error handling for missing drivers)
+try:
+    engine = create_engine(DATABASE_URL, echo=False)
+except Exception as e:
+    print(f"Warning: Database connection failed: {e}")
+    print("Using SQLite as fallback database")
+    DATABASE_URL = "sqlite:///./dynamic_job_matching.db"
+    engine = create_engine(DATABASE_URL, echo=False)
 
 # Create a scoped session factory
 SessionLocal = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
@@ -36,7 +42,7 @@ def initialize_database():
         Base.metadata.create_all(bind=engine)
         print("Database initialized successfully")
     except Exception as e:
-        print(f"Error initializing database: {e}")
+        print(f"Warning: Database initialization had issues: {e}")
 
 
 def init_db():
