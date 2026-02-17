@@ -1,0 +1,70 @@
+# Python-related files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Environment files
+.env
+.env.*
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+*.swo
+*.bak
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Compiled files
+*.so
+
+# Coverage reports
+.coverage
+htmlcov/
+.coverage.*
+
+# Docker-related files
+docker-compose.override.yml
+*.dockerfile
+*.tar
+
+# Node.js-related files
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build and distribution directories
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.iml
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Test and debugging files
+*.test.js
+*.test.py
+*.spec.js
+*.spec.py
+
+# Miscellaneous
+*.sqlite3
+*.db
+*.pid
+*.pid.lock
