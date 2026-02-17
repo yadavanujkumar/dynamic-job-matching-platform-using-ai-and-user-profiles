@@ -26,9 +26,21 @@ def get_db():
     finally:
         db.close()
 
-def init_db():
+def initialize_database():
     """
     Initializes the database by creating all tables defined in ORM models.
     """
-    import src.database.models  # Import all models to ensure they are registered with Base
-    Base.metadata.create_all(bind=engine)
+    try:
+        # Import all models to ensure they are registered with Base
+        from src.models import job_model, user_model
+        Base.metadata.create_all(bind=engine)
+        print("Database initialized successfully")
+    except Exception as e:
+        print(f"Error initializing database: {e}")
+
+
+def init_db():
+    """
+    Alias for initialize_database for backward compatibility
+    """
+    initialize_database()
