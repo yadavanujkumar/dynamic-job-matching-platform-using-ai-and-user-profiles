@@ -83,6 +83,37 @@ This platform has been significantly enhanced from its basic version with the fo
    
    Interactive API documentation (Swagger UI) is available at `http://localhost:8000/docs`
 
+### Quick Start
+
+For a quick start without manual setup:
+
+```bash
+# Make the start script executable and run it
+chmod +x start.sh
+./start.sh
+```
+
+This script will:
+- Check Python and pip installation
+- Create a virtual environment
+- Install all dependencies
+- Start the server on http://localhost:8000
+
+### Run Demo
+
+Once the server is running, open a new terminal and run the demo script:
+
+```bash
+python demo.py
+```
+
+This interactive demo will showcase:
+- Creating job postings
+- Filtering jobs by skills
+- User registration and authentication
+- Profile management
+- AI-powered job matching with detailed scores
+
 ### Docker Deployment
 
 1. **Build and run with Docker Compose**
@@ -103,13 +134,17 @@ dynamic-job-matching-platform-using-ai-and-user-profiles/
 ├── src/
 │   ├── config/          # Configuration files
 │   ├── database/        # Database models and connection
-│   ├── models/          # AI/ML models
+│   ├── models/          # Data models
 │   ├── routes/          # API route handlers
 │   │   ├── job_routes.py
 │   │   └── user_routes.py
 │   ├── services/        # Business logic services
+│   │   └── matching_service.py  # AI matching algorithm
+│   ├── utils/           # Utility modules (logging, exceptions)
 │   └── main.py          # Application entry point
 ├── tests/               # Test suite
+├── demo.py              # Interactive demo script
+├── start.sh             # Quick start script
 ├── .env                 # Environment variables
 ├── .gitignore          # Git ignore rules
 ├── docker-compose.yml  # Docker Compose configuration
@@ -243,48 +278,45 @@ The matching algorithm intelligently ranks jobs based on multiple factors, provi
 ## 📊 Tech Stack
 
 **Backend Framework:**
-- FastAPI (async Python web framework)
-- Uvicorn (ASGI server)
+- FastAPI (async Python web framework with automatic API documentation)
+- Uvicorn (ASGI server for high-performance async operations)
+- Pydantic (data validation and settings management)
 
 **Machine Learning:**
-- TensorFlow 2.13.0
-- PyTorch 2.0.1
-- scikit-learn 1.3.0
-- Transformers 4.31.0
-- NLTK 3.8.1
-- spaCy 3.6.0
+- scikit-learn (TF-IDF vectorization, cosine similarity)
+- NumPy (numerical computations and vector operations)
 
 **Database:**
-- PostgreSQL
-- SQLAlchemy 2.0.20
-- psycopg2-binary 2.9.7
+- SQLAlchemy 2.0+ (ORM with async support)
+- SQLite (default, with PostgreSQL support)
 
-**Data Processing:**
-- NumPy 1.25.2
-- Pandas 2.0.3
-
-**Web Scraping:**
-- BeautifulSoup4 4.12.2
-- Requests 2.31.0
-- lxml 4.9.3
+**Security:**
+- PyJWT (JSON Web Token authentication)
+- Werkzeug (secure password hashing with PBKDF2)
 
 **Development Tools:**
-- pytest (testing)
-- Black (code formatting)
-- isort (import sorting)
-- Flake8 (linting)
-- pre-commit (git hooks)
+- pytest (testing framework)
+- httpx (async HTTP client for testing)
 
 ## 🔒 Environment Variables
 
-Create a `.env` file with the following variables:
+Configure the application by setting these environment variables (optional, defaults provided):
 
 ```env
-DATABASE_URL=postgresql://user:password@localhost:5432/jobmatching
-SECRET_KEY=your-secret-key
-DEBUG=True
+# Database Configuration
+DATABASE_URL=sqlite:///./dynamic_job_matching.db  # Default: SQLite
+# DATABASE_URL=postgresql://user:pass@localhost:5432/dbname  # For PostgreSQL
+DB_ECHO=false  # Set to 'true' to enable SQL query logging
+
+# Security (REQUIRED for production)
+SECRET_KEY=your-super-secret-key-min-32-chars-long  # For JWT token signing
+
+# Server Configuration
+HOST=0.0.0.0
 PORT=8000
 ```
+
+**⚠️ Security Warning:** Always set a strong `SECRET_KEY` in production. The application will warn you if using the default development key.
 
 ## 🚧 Development
 
