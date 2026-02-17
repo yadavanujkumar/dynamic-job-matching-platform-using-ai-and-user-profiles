@@ -10,6 +10,13 @@ class MatchingService:
     Enhanced MatchingService with advanced NLP and ML for job matching.
     Implements TF-IDF vectorization and multi-factor scoring algorithms.
     """
+    
+    # Scoring constants
+    NEUTRAL_SCORE = 0.5  # Score when no data is available for comparison
+    SKILL_WEIGHT = 0.45
+    TEXT_WEIGHT = 0.30
+    EXPERIENCE_WEIGHT = 0.15
+    LOCATION_WEIGHT = 0.10
 
     def __init__(self):
         """
@@ -33,6 +40,10 @@ class MatchingService:
             'docker': ['containers', 'containerization'],
             'kubernetes': ['k8s', 'container orchestration'],
         }
+        
+        # Setup logger
+        from src.utils.logger import setup_logger
+        self.logger = setup_logger(__name__)
 
     def calculate_similarity(self, user_vector: np.ndarray, job_vector: np.ndarray) -> float:
         """
@@ -105,10 +116,10 @@ class MatchingService:
             
             # Weighted overall score (skill matching is most important)
             overall_score = (
-                skill_score * 0.45 +
-                text_score * 0.30 +
-                experience_score * 0.15 +
-                location_score * 0.10
+                skill_score * self.SKILL_WEIGHT +
+                text_score * self.TEXT_WEIGHT +
+                experience_score * self.EXPERIENCE_WEIGHT +
+                location_score * self.LOCATION_WEIGHT
             )
             
             results.append({
@@ -139,7 +150,7 @@ class MatchingService:
             Score between 0 and 1
         """
         if not job_skills:
-            return 0.5  # Neutral score if no skills specified
+            return self.NEUTRAL_SCORE  # Neutral score if no skills specified
         
         if not user_skills:
             return 0.0
@@ -215,8 +226,9 @@ class MatchingService:
             # Calculate similarity
             similarity = cosine_similarity(vectors[0:1], vectors[1:2])[0][0]
             return float(similarity)
-        except Exception:
-            # Fallback to simple keyword matching if TF-IDF fails
+        except Exception as e:
+            # Log the exception and fallback to simple keyword matching
+            self.logger.warning(f"TF-IDF vectorization failed: {e}. Using fallback keyword matching.")
             return self._simple_keyword_match(user_profile, job)
 
     def _create_text_representation(self, data: Dict) -> str:
@@ -294,10 +306,10 @@ class MatchingService:
             Score between 0 and 1
         """
         if not user_location:
-            return 0.5  # Neutral if user has no preference
+            return self.NEUTRAL_SCORE  # Neutral if user has no preference
         
         if not job_location:
-            return 0.5
+            return self.NEUTRAL_SCORE
         
         user_loc_lower = user_location.lower().strip()
         job_loc_lower = job_location.lower().strip()

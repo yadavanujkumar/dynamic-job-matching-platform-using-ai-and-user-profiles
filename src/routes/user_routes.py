@@ -6,13 +6,21 @@ import uuid
 import jwt
 import datetime
 
+import os
+
 router = APIRouter()
 
 # Mock database (replace with actual database integration)
 mock_users_db = {}
 
-# Secret key for JWT (use environment variable in production)
-SECRET_KEY = "your_secret_key"
+# Secret key for JWT - MUST be set via environment variable in production
+SECRET_KEY = os.getenv("SECRET_KEY", "your_secret_key_change_this_in_production")
+
+# Warn if using default secret key
+if SECRET_KEY == "your_secret_key_change_this_in_production":
+    import warnings
+    warnings.warn("WARNING: Using default SECRET_KEY. Set SECRET_KEY environment variable in production!")
+
 
 
 # Pydantic models
@@ -68,7 +76,8 @@ async def register_user(user: UserRegister):
         raise HTTPException(status_code=409, detail="Email already exists")
     
     user_id = str(uuid.uuid4())
-    hashed_password = generate_password_hash(user.password, method='pbkdf2:sha256')
+    # Use stronger password hashing with explicit parameters
+    hashed_password = generate_password_hash(user.password, method='pbkdf2:sha256:260000')
     
     mock_users_db[user_id] = {
         'user_id': user_id,

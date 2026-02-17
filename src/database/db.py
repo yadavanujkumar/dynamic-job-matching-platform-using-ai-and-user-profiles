@@ -8,15 +8,16 @@ Base = declarative_base()
 
 # Database configuration
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./dynamic_job_matching.db")
+DB_ECHO = os.getenv("DB_ECHO", "false").lower() in ("true", "1", "yes")
 
 # Create the database engine (with error handling for missing drivers)
 try:
-    engine = create_engine(DATABASE_URL, echo=False)
+    engine = create_engine(DATABASE_URL, echo=DB_ECHO)
 except Exception as e:
     print(f"Warning: Database connection failed: {e}")
     print("Using SQLite as fallback database")
     DATABASE_URL = "sqlite:///./dynamic_job_matching.db"
-    engine = create_engine(DATABASE_URL, echo=False)
+    engine = create_engine(DATABASE_URL, echo=DB_ECHO)
 
 # Create a scoped session factory
 SessionLocal = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
