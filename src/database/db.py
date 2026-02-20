@@ -7,10 +7,17 @@ import os
 Base = declarative_base()
 
 # Database configuration
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://user:password@localhost:5432/dynamic_job_matching")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./dynamic_job_matching.db")
+DB_ECHO = os.getenv("DB_ECHO", "false").lower() in ("true", "1", "yes")
 
-# Create the database engine
-engine = create_engine(DATABASE_URL, echo=True)
+# Create the database engine (with error handling for missing drivers)
+try:
+    engine = create_engine(DATABASE_URL, echo=DB_ECHO)
+except Exception as e:
+    print(f"Warning: Database connection failed: {e}")
+    print("Using SQLite as fallback database")
+    DATABASE_URL = "sqlite:///./dynamic_job_matching.db"
+    engine = create_engine(DATABASE_URL, echo=DB_ECHO)
 
 # Create a scoped session factory
 SessionLocal = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
@@ -26,9 +33,21 @@ def get_db():
     finally:
         db.close()
 
-def init_db():
+def initialize_database():
     """
     Initializes the database by creating all tables defined in ORM models.
     """
-    import src.database.models  # Import all models to ensure they are registered with Base
-    Base.metadata.create_all(bind=engine)
+    try:
+        # Import all models to ensure they are registered with Base
+        from src.models import job_model, user_model
+        Base.metadata.create_all(bind=engine)
+        print("Database initialized successfully")
+    except Exception as e:
+        print(f"Warning: Database initialization had issues: {e}")
+
+
+def init_db():
+    """
+    Alias for initialize_database for backward compatibility
+    """
+    initialize_database()
